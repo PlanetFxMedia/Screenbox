@@ -1,0 +1,6 @@
+Messages:
+  Prefix: '&4[&6Nick&4] &r'
+  OnlyPlayer: '&4Du musst ein Spieler sein!'
+  NoPermission: '&4Dafür hast du keine Berechtigung!'
+  Syntax: '&4Syntax: &f<cmd>'
+  NotFound: '&4Die Box &6<BoxName> &4existiert nicht!'
