@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.block.Sign;
 import org.bukkit.configuration.file.FileConfiguration;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -59,6 +60,13 @@ public class MySQL {
 				int rs = stmt.executeUpdate("CREATE TABLE Screenbox (id INTEGER PRIMARY KEY AUTO_INCREMENT, BoxName TEXT, SpawnLocationJson TEXT, HeadLocationJson TEXT)");
 				Bukkit.getLogger().info("Die Tabelle Screenbox wurde erstellt! (" + rs + ")");
 			}
+			rss = stmt.executeQuery("SHOW TABLES LIKE 'Screenbox_Signs'");
+			if (rss.next()) {
+				Bukkit.getLogger().info("Die Tabelle Screenbox_Signs wurde geladen!");
+			} else {
+				int rs = stmt.executeUpdate("CREATE TABLE Screenbox_Signs (id INTEGER PRIMARY KEY AUTO_INCREMENT, BoxName TEXT, LocationJson TEXT)");
+				Bukkit.getLogger().info("Die Tabelle Screenbox_Signs wurde erstellt! (" + rs + ")");
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -100,6 +108,47 @@ public class MySQL {
 				JsonObject HeadJsonObject = HeadJsonElement.getAsJsonObject();
 				Location HeadLoc = new Location(Bukkit.getWorld(HeadJsonObject.get("world").getAsString()), HeadJsonObject.get("x").getAsInt(), HeadJsonObject.get("y").getAsInt(), HeadJsonObject.get("z").getAsInt());
 				Screenboxen.put(rss.getString("BoxName"), new Box(rss.getString("BoxName"), SpawnLoc, HeadLoc));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return Screenboxen;
+	}
+	
+	public void addSign(Box box) {
+		try {
+			Connection c = getConnection();
+			Statement stmt = c.createStatement();
+			stmt.execute("INSERT INTO Screenbox_Signs (BoxName, SpawnLocationJson, HeadLocationJson) VALUES ('" + box.getName() + "', '" + box.getSpawnLocJson().toString() +  "', '" + box.getHeadLocJson().toString() + "')");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void deleteSign(String BoxName) {
+		try {
+			Connection c = getConnection();
+			Statement stmt = c.createStatement();
+			stmt.execute("DELETE FROM Screenbox_Signs WHERE BoxName='" + BoxName + "'");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public Map<String, Sign> getSigns() {
+		Map<String, Sign> Signs = new HashMap<String, Sign>();
+		try {
+			Connection c = getConnection();
+			Statement stmt = c.createStatement();
+			ResultSet rss = stmt.executeQuery("SELECT * FROM Screenbox_Signs");
+			while (rss.next()) {
+				JsonParser SpawnJsonParser = new JsonParser();
+				JsonElement SpawnJsonElement = SpawnJsonParser.parse(rss.getString("LocationJson"));
+				JsonObject SpawnJsonObject = SpawnJsonElement.getAsJsonObject();
+				Location SpawnLoc = new Location(Bukkit.getWorld(SpawnJsonObject.get("world").getAsString()), SpawnJsonObject.get("x").getAsInt(), SpawnJsonObject.get("y").getAsInt(), SpawnJsonObject.get("z").getAsInt());
+				JsonParser HeadJsonParser = new JsonParser();
+				Block b = new 
+				Signs.put(rss.getString("BoxName"), SpawnLoc);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
